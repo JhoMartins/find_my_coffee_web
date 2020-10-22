@@ -1,12 +1,14 @@
 import React, { Fragment, useState, useEffect } from 'react';
 import { GoogleMap , LoadScript, Marker } from '@react-google-maps/api';
+import Establishment from './components/Establishment';
 
-import EstablishmentsService from './services/google_list_of_establishments';
+import EstablishmentsService from './services/establishments_service';
 
 function App() {
   const [latitude, setLatitude] = useState(0);
   const [longitude, setLongitude] = useState(0);
   const [locations, setLocations] = useState([]);
+  const [selected, setSelected] = useState({});
 
   const { REACT_APP_GOOGLE_KEY } = process.env
 
@@ -16,8 +18,10 @@ function App() {
 
   async function setCurrentLocation() {
     await navigator.geolocation.getCurrentPosition(function (position) {
+      console.log(position)
       setLatitude(position.coords.latitude);
       setLongitude(position.coords.longitude);
+      console.log(longitude)
       loadCoffeeShops();
       console.log()
     }, function(error) {
@@ -27,6 +31,7 @@ function App() {
   }
 
   async function loadCoffeeShops() {
+    console.log(latitude)
     const response = await EstablishmentsService.index(latitude, longitude);
     setLocations(response.data.results);
   }
@@ -34,15 +39,22 @@ function App() {
   return (
     <Fragment>
       <LoadScript googleMapsApiKey={REACT_APP_GOOGLE_KEY}>
+        {console.log(latitude)}
         <GoogleMap mapContainerStyle={{height: "100vh", width: "100%"}} zoom={15} center={{lat: latitude, lng: longitude}}>
           {
             locations.map((item, index) => {
               return (
                 <Marker key={index} icon="/images/coffee-pin.png" title={item.name} animation="4" 
-                  position={{lat: item.geometry.location.lat, lng: item.geometry.location.lng}}>
+                  position={{lat: item.geometry.location.lat, lng: item.geometry.location.lng}}
+                  onClick={() => setSelected(item)}>
                 </Marker>
               )
             })
+          }
+          {
+            selected.place_id && (
+              <Establishment place={selected}></Establishment>
+            )
           }
           <Marker key="my location" icon="/images/my-location-pin.png" title="Seu local" animation="2" 
             position={{lat: latitude, lng: longitude}}>
