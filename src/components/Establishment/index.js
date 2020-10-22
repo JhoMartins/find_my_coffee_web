@@ -1,6 +1,7 @@
 import React, {useState, useEffect} from 'react';
 import EstablishmentsService from '../../services/establishments_service';
 import styled from 'styled-components';
+import Ratings from './Ratings';
 
 const LeftBar = styled.div`
   height: 100%;
@@ -70,6 +71,8 @@ const Establishment = (props) => {
       }
       <hr/>
       <Paragraph>{establishment.formatted_address}</Paragraph>
+
+      <Ratings place={props.place} />
     </LeftBar>
   )
 }
